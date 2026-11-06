@@ -1,6 +1,6 @@
 [project]
 name = "gs_jusuo"
-version = "1.0.0"
+version = "1.0.1"
 description = "居所助手 · 王者荣耀世界菜地/牧场高倍收购查询（gscore 插件）"
 authors = [{ name = "towjf", email = "towjf@users.noreply.github.com" }]
 license = { text = "MIT" }

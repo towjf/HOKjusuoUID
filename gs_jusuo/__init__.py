@@ -21,12 +21,21 @@ from .jusuo_params import parse_entries_args, tokens
 from .jusuo_text import card_to_text
 from .jusuo_view import entry_card, help_rows_card, market_card
 
-__version__ = "1.0.0"
+__version__ = "1.0.1"
 
-# 插件级配置：默认允许无前缀（直接发「菜地」），也可加「居所」前缀（居所菜地）
-Plugins(name="gs_jusuo", force_prefix=["居所"], allow_empty_prefix=True)
+# 插件级配置：只允许空前缀（直接发「菜地」）。
+# 这里【不要】写 force_prefix：gscore 会把每个命令按前缀展开成多份触发器，
+# 填了「居所」之后控制台里每条命令都会出现「菜地」和「居所菜地」两条。
+# 需要前缀时由部署者在插件配置里自行添加即可。
+Plugins(name="gs_jusuo", allow_empty_prefix=True)
 
-jusuo_sv = SV("居所助手", pm=6, priority=5)
+# 一个命令一个 SV：控制台里可以单独开关、单独调权限与优先级
+sv_residence = SV("居所助手-菜地", pm=6, priority=5)
+sv_ranch = SV("居所助手-牧场", pm=6, priority=5)
+sv_items = SV("居所助手-物品列表", pm=6, priority=5)
+sv_market = SV("居所助手-行情", pm=6, priority=5)
+sv_help = SV("居所助手-命令帮助", pm=6, priority=5)
+sv_status = SV("居所助手-自检", pm=1, priority=5)  # pm=1 → 仅超级管理员
 
 HELP_ITEMS = [
     {
@@ -50,9 +59,9 @@ HELP_ITEMS = [
         "how": "默认菜地、24 小时。例：行情 牧场 48",
     },
     {
-        "cmd": "居所帮助 / 居所状态",
-        "what": "命令一览 / 自检",
-        "how": "居所状态会返回接口连通性、出图方式与插件版本",
+        "cmd": "居所状态",
+        "what": "自检（仅超级管理员）",
+        "how": "返回接口连通性、出图方式与插件版本",
     },
 ]
 
@@ -81,7 +90,7 @@ async def _send_card(bot: Bot, card: dict) -> None:
 
 async def _entries_card(ev: Event, source: str):
     args = parse_entries_args(tokens(getattr(ev, "text", "") or ""))
-    sort_mode = (args.sort_mode or ("unit" if conf("default_sort") == "单价" else "sale"))
+    sort_mode = args.sort_mode or ("unit" if conf("default_sort") == "单价" else "sale")
     api = _api()
 
     try:
@@ -105,9 +114,10 @@ async def _entries_card(ev: Event, source: str):
                 item_keyword=args.item_keyword,
             )
 
-        entries, prices = await api.ranch_entries_with_names(
+        entries = await api.ranch_entries_with_names(
             limit=int(conf("fetch_limit") or 300)
-        ), await api.unit_prices()
+        )
+        prices = await api.unit_prices()
         return entry_card(
             entries,
             prices,
@@ -128,7 +138,7 @@ async def _entries_card(ev: Event, source: str):
         await api.close()
 
 
-@jusuo_sv.on_command(
+@sv_residence.on_command(
     "菜地",
     block=True,
     to_ai="查询王者荣耀世界居所助手的菜地作物高倍收购列表，参数可为 物品名/单价|售价/页数",
@@ -142,7 +152,7 @@ async def cmd_residence(bot: Bot, ev: Event) -> None:
     await _send_card(bot, card)
 
 
-@jusuo_sv.on_command(
+@sv_ranch.on_command(
     "牧场",
     block=True,
     to_ai="查询王者荣耀世界居所助手的牧场动物产物高倍收购列表，参数可为 物品名/单价|售价/页数",
@@ -159,9 +169,7 @@ async def cmd_ranch(bot: Bot, ev: Event) -> None:
 # ---------------------------------------------------------------- 物品列表
 
 
-@jusuo_sv.on_command(
-    "物品列表", block=True, to_ai="列出菜地与牧场当前在售的全部物品名称"
-)
+@sv_items.on_command("物品列表", block=True, to_ai="列出菜地与牧场当前在售的全部物品名称")
 async def cmd_item_list(bot: Bot, ev: Event) -> None:
     api = _api()
     try:
@@ -185,7 +193,7 @@ async def cmd_item_list(bot: Bot, ev: Event) -> None:
 # ---------------------------------------------------------------- 行情
 
 
-@jusuo_sv.on_command(
+@sv_market.on_command(
     "行情",
     block=True,
     to_ai="查询近 N 小时各物品的最高成交估价峰值，参数可为 菜地|牧场 和 小时数",
@@ -223,7 +231,7 @@ async def cmd_market(bot: Bot, ev: Event) -> None:
 # ---------------------------------------------------------------- 帮助 / 自检
 
 
-@jusuo_sv.on_command("居所帮助", block=True)
+@sv_help.on_command("居所帮助", block=True)
 async def cmd_help(bot: Bot, ev: Event) -> None:
     if not conf("use_image"):
         lines = ["【居所助手 命令一览】"]
@@ -235,7 +243,7 @@ async def cmd_help(bot: Bot, ev: Event) -> None:
     await _send_card(bot, card)
 
 
-@jusuo_sv.on_command("居所状态", block=True, aliases=["居所测试"])
+@sv_status.on_command("居所状态", block=True)
 async def cmd_status(bot: Bot, ev: Event) -> None:
     lines = ["【居所助手自检】"]
     started = time.perf_counter()

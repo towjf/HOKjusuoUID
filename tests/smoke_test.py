@@ -16,7 +16,7 @@ sys.path.insert(0, str(ROOT))  # 提供 gs_jusuo 包
 
 import gs_jusuo  # noqa: E402
 from gsuid_core.models import Event  # noqa: E402
-from gsuid_core.sv import HANDLERS, PLUGIN_KWARGS  # noqa: E402
+from gsuid_core.sv import HANDLERS, PLUGIN_KWARGS, SV_LIST  # noqa: E402
 
 from gs_jusuo.jusuo_config import jusuo_config  # noqa: E402
 
@@ -45,7 +45,18 @@ CASES = [
 async def main() -> None:
     print(f"插件：{gs_jusuo.__name__} v{gs_jusuo.__version__}")
     print("Plugins 参数：", PLUGIN_KWARGS.get("gs_jusuo"))
-    print("已注册命令：", sorted(HANDLERS))
+    print()
+    print("SV 列表（每个命令一个，可单独开关/设权限）：")
+    for name, sv in SV_LIST.items():
+        keys = [k for k, v in HANDLERS.items() if v["sv"] == name]
+        print(f"  {name:18} pm={sv.pm}  触发词={keys}")
+    print()
+    duplicates = {
+        key: sum(1 for k in HANDLERS if k == key) for key in set(HANDLERS)
+    }
+    extra = [k for k, c in duplicates.items() if c > 1]
+    print("重复注册的命令：", extra or "无")
+    print("全部触发词：", sorted(HANDLERS))
     print("配置项：", list(jusuo_config.config.keys()))
     print()
 
@@ -60,7 +71,7 @@ async def main() -> None:
             desc = "文本：" + sent.splitlines()[0][:36]
         else:
             desc = str(type(sent))
-        print(f"{command:6}+{text!r:12} -> {desc}")
+        print(f"{command:6}+{text!r:12} -> {desc}  [sv={HANDLERS[command]['sv']}]")
 
     jusuo_config.get_config("use_image").data = False
     bot = FakeBot()
@@ -69,9 +80,9 @@ async def main() -> None:
     for line in str(bot.sends[0]).splitlines()[:2]:
         print("   ", line)
 
-    # 顺手验证参数解析的边界
     from gs_jusuo.jusuo_params import parse_entries_args, tokens
 
+    print()
     for raw in ["", "草莓", "草莓 单价 2", "倍率2 等级70 售价"]:
         print(f"解析 {raw!r} ->", parse_entries_args(tokens(raw)))
 
