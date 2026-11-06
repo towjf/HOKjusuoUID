@@ -52,6 +52,131 @@ git clone https://github.com/towjf/HOKjusuoUID.git
 
 ```
 gsuid_core/plugins/HOKjusuoUID/
+├── __init__.py          ← 必须在这一层（只做 Plugins 注册 + 导入子包）
+├── version.py
+├── jusuo_config.py
+├── jusuo_residence/     # 菜地
+│   └── __init__.py
+├── jusuo_ranch/         # 牧场
+│   └── __init__.py
+├── jusuo_items/         # 物品列表
+│   └── __init__.py
+├── jusuo_market/        # 行情
+│   └── __init__.py
+├── jusuo_help/          # 帮助
+│   └── __init__.py
+├── jusuo_status/        # 状态（仅超管）
+│   └── __init__.py
+└── utils/
+    ├── __init__.py
+    ├── api.py           # Supabase REST 客户端
+    ├── entries.py       # 菜地/牧场共用取数
+    ├── format.py        # 金额、时间、估价公式
+    ├── image.py         # Pillow 绘制
+    ├── params.py        # 参数解析
+    ├── sender.py        # 出图并发送
+    ├── text.py          # 纯文本兜底
+    └── view.py          # 卡片视图模型
+```
+
+**别套两层**（`plugins/HOKjusuoUID/HOKjusuoUID/__init__.py` 这种会加载失败，表现就是日志里看不到 `插件HOKjusuoUID导入成功!`）。
+
+重启 gscore，日志出现 `插件HOKjusuoUID导入成功!` 即成功。依赖只有 `httpx` 与 `Pillow`，gscore 自带。
+
+## 命令
+
+**所有命令都必须带前缀 `js` 或 `居所`**，裸命令不注册（避免和其他插件撞名）。下文用 `js` 举例，换成 `居所` 完全等价。
+
+| 命令 | 说明 |
+| --- | --- |
+| `js菜地 [物品] [单价\|售价] [页数]` | 菜地作物高倍收购，默认售价优先、第 1 页 |
+| `js牧场 [物品] [单价\|售价] [页数]` | 牧场动物产物收购，规则同上 |
+| `js物品列表` | 菜地 + 牧场在售物品名清单 |
+| `js行情 [菜地\|牧场] [小时]` | 行情峰值，默认菜地、24 小时 |
+| `js帮助` | 命令一览（图片） |
+| `js状态` | 自检：接口连通性、出图方式、版本（**仅超级管理员**） |
+
+示例：
+
+```
+js菜地                     → 全部物品，售价优先第 1 页
+居所菜地 草莓               → 只看名字含「草莓」的
+js菜地 草莓 单价 2          → 草莓类，按单价排序第 2 页
+js牧场 羊毛                → 只看羊毛类产物
+居所行情 牧场 48            → 牧场产物近 48 小时峰值
+js物品列表                 → 列出两类全部物品名
+```
+
+附加过滤（可选，默认不过滤）：`js菜地 倍率2 等级70 售价`。
+
+## 前缀与权限
+
+前缀走**插件级配置的「强制前缀」**，与 EndUID（`end` / `zmd`）、GenshinUID 等插件一致：
+
+```python
+Plugins(
+    name="HOKjusuoUID",
+    prefix=[],                      # 默认前缀：关闭
+    force_prefix=["js", "居所"],     # 强制前缀：js、居所
+    allow_empty_prefix=False,      # 允许空前缀：关闭 → 没有裸命令
+)
+```
+
+对应控制台「插件服务配置」里的三行：
+
+| 配置项 | 值 |
+| --- | --- |
+| 默认前缀（`prefix`） | 关闭 / 空 |
+| 强制前缀（`force_prefix`） | `js`、`居所` |
+| 允许空前缀（`allow_empty_prefix`） | 关 |
+
+强制前缀由插件作者固定、不写入 `data/plugins_config/HOKjusuoUID.json`，部署者不会误删；`allow_empty_prefix=False` 保证 `菜地` 这类裸命令不会触发，所有指令都必须带 `js` 或 `居所`。
+
+每条命令是一个独立 SV，可以单独开关、单独设权限与优先级：
+
+| SV | 触发词 | 默认权限 |
+| --- | --- | --- |
+| HOKjusuoUID-菜地 | `js菜地` / `居所菜地` | 6 所有人 |
+| HOKjusuoUID-牧场 | `js牧场` / `居所牧场` | 6 所有人 |
+| HOKjusuoUID-物品列表 | `js物品列表` / `居所物品列表` | 6 所有人 |
+| HOKjusuoUID-行情 | `js行情` / `居所行情` | 6 所有人 |
+| HOKjusuoUID-帮助 | `js帮助` / `居所帮助` | 6 所有人 |
+| HOKjusuoUID-自检 | `js状态` / `居所状态` | **1 超级管理员** |
+
+权限等级：0 主人 / 1 超级管理员 / 2 群主 / 3 群管理员 / 6 普通用户。
+
+> SV 里每个命令出现「两条触发器」（`jsX`、`居所X`）是正常的：gscore 会按前缀列表展开，两条分别是两个前缀，不是重复注册。
+
+## 配置
+
+配置会写入 `gsuid_core/data/HOKjusuoUID/config.json`，也可在网页控制台修改。
+
+| 键 | 说明 | 默认 |
+| --- | --- | --- |
+| `supabase_url` | 数据接口地址 | `https://db.playmmo.cn` |
+| `anon_key` | 公开只读 key，留空用内置 | 空 |
+| `timeout` | 请求超时（秒） | `15` |
+| `cache_ttl` | 基础数据缓存秒数 | `90` |
+| `default_sort` | 默认排序：`售价` / `单价` | `售价` |
+| `page_size` | 每页条数 | `10` |
+| `hide_limited` | 排除已限购条目 | `true` |
+| `fetch_limit` | 单次拉取条数 | `300` |
+| `use_image` | 输出图片卡片 | `true` |
+| `market_hours` | 行情默认小时数 | `24` |
+
+## 数据与隐私
+
+- 数据全部来自 `db.playmmo.cn` 的公开只读接口（站点前端内置的 anon key，仅有 RLS 允许的读权限），插件不写入、不上传任何数据；
+- 卡片在本地绘制，图片不经过任何第三方渲染服务；
+- 展示的商人 UID 等信息是站点本身公开的玩家分享内容，仅供游戏内找摊位使用；
+- 估价按站点公式推算：`单价 ×(1+等级加成)× 倍率 × 数量 ×(1+满贡献0.2)`，与游戏内实际成交可能存在差异。
+
+> 站点接口由第三方维护，若对方调整字段或鉴权，插件需要同步更新。欢迎提 issue。
+
+## 开发
+
+```
+HOKjusuoUID/
 ├── __init__.py          # 仅 Plugins 注册 + 导入子包
 ├── version.py           # 版本号（唯一来源）
 ├── jusuo_config.py      # 网页控制台配置项
@@ -70,6 +195,7 @@ gsuid_core/plugins/HOKjusuoUID/
     ├── sender.py        # 出图并发送（失败退纯文本）
     ├── text.py          # 纯文本兜底
     └── format.py        # 金额、时间、估价公式
+```
 
 ```bash
 # 单元测试（不需要 gscore，有 Pillow 即可）

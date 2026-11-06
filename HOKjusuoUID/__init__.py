@@ -22,10 +22,14 @@ from gsuid_core.sv import Plugins
 from .version import __version__
 
 # 插件级配置必须写在导入子包之前：子包里的 SV() 会按插件名查前缀配置
-# 默认前缀 js / 居所，allow_empty_prefix=False → 不存在裸命令
+# 与 EndUID（强制前缀 end/zmd）、GenshinUID 等插件保持一致：
+#   - 只声明「强制前缀」js / 居所，不设用户可改的默认前缀
+#   - allow_empty_prefix=False → 关闭默认（空前缀），不存在裸命令
+# 即控制台「插件服务配置」里表现为：默认前缀=关闭、强制前缀=js, 居所
 Plugins(
     name="HOKjusuoUID",
-    prefix=["js", "居所"],
+    prefix=[],
+    force_prefix=["js", "居所"],
     allow_empty_prefix=False,
 )
 

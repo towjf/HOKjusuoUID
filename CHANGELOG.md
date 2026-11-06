@@ -1,5 +1,15 @@
 # 更新日志
 
+## 1.3.1
+
+### 变更
+
+- 前缀改走插件级「强制前缀」，与 EndUID（`end` / `zmd`）等插件保持一致：
+  `Plugins(prefix=[], force_prefix=["js", "居所"], allow_empty_prefix=False)`；
+- 控制台「插件服务配置」里表现为：默认前缀=关闭、强制前缀=`js, 居所`、允许空前缀=关；
+- 强制前缀不写入 `data/plugins_config/HOKjusuoUID.json`，部署者不会误删；
+- 触发词不变：`js菜地` / `居所菜地` 等 12 条，无裸命令。
+
 ## 1.3.0
 
 ### 重构
