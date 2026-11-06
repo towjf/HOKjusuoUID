@@ -28,7 +28,12 @@ from HOKjusuoUID.utils.format import (  # noqa: E402
     multiplier_tone,
 )
 from HOKjusuoUID.utils.image import render_card  # noqa: E402
-from HOKjusuoUID.utils.params import parse_entries_args, tokens  # noqa: E402
+from HOKjusuoUID.utils.params import (  # noqa: E402
+    parse_entries_args,
+    parse_market_args,
+    split_args,
+    tokens,
+)
 from HOKjusuoUID.utils.text import card_to_text  # noqa: E402
 from HOKjusuoUID.utils.view import entry_card  # noqa: E402
 
@@ -87,6 +92,40 @@ class TestParams(unittest.TestCase):
 
     def test_page_clamped(self):
         self.assertEqual(parse_entries_args(["0"]).page, 1)
+
+    def test_split_args_keeps_market_words(self):
+        # gscore 的 ev.text 不含命令词，参数里的「牧场/菜地」不能被当成命令词吃掉
+        self.assertEqual(split_args(" 牧场 48"), ["牧场", "48"])
+        self.assertEqual(split_args("菜地"), ["菜地"])
+        self.assertEqual(split_args(""), [])
+
+
+class TestMarketArgs(unittest.TestCase):
+    def test_default_is_crop(self):
+        args = parse_market_args([])
+        self.assertEqual((args.source, args.hours), ("crop", 24))
+
+    def test_ranch_switch(self):
+        # 回归：`行情 牧场` 曾经因为 tokens() 吃掉「牧场」而固定返回菜地
+        args = parse_market_args(split_args(" 牧场"))
+        self.assertEqual(args.source, "ranch")
+
+        args = parse_market_args(split_args(" 牧场 48"))
+        self.assertEqual((args.source, args.hours), ("ranch", 48))
+
+    def test_crop_explicit(self):
+        args = parse_market_args(split_args(" 菜地 12"))
+        self.assertEqual((args.source, args.hours), ("crop", 12))
+
+    def test_hours_clamped(self):
+        self.assertEqual(parse_market_args(["牧场", "999"]).hours, 168)
+        self.assertEqual(parse_market_args(["牧场", "1"]).hours, 6)
+
+    def test_custom_default_hours(self):
+        self.assertEqual(parse_market_args([], default_hours=48).hours, 48)
+
+    def test_english_alias(self):
+        self.assertEqual(parse_market_args(["ranch"]).source, "ranch")
 
 
 class TestFormat(unittest.TestCase):

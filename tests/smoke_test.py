@@ -83,11 +83,33 @@ async def main() -> None:
     for line in str(bot.sends[0]).splitlines()[:2]:
         print("   ", line)
 
-    from HOKjusuoUID.utils.params import parse_entries_args, tokens
+    # 回归：js行情 牧场 / js行情 菜地 必须取到不同来源（曾因 tokens() 吃词而恒为菜地）
+    market_texts = {}
+    for keyword in ("牧场", "菜地"):
+        bot = FakeBot()
+        await HANDLERS["js行情"]["func"](
+            bot, Event(text=f" {keyword}", raw_text=f"js行情 {keyword}", command="js行情")
+        )
+        market_texts[keyword] = str(bot.sends[0] if bot.sends else "")
+    print("\n行情来源区分：")
+    for keyword in ("牧场", "菜地"):
+        head = market_texts[keyword].splitlines()[0] if market_texts[keyword] else "(空)"
+        first_item = next(
+            (line for line in market_texts[keyword].splitlines() if "·" in line or "Lv" in line),
+            "",
+        )
+        print(f"  js行情 {keyword} -> {head}")
+        print(f"      首条: {first_item[:48]}")
+    assert market_texts["牧场"] != market_texts["菜地"], "牧场/菜地 行情返回了相同内容"
+
+    from HOKjusuoUID.utils.params import parse_entries_args, parse_market_args, split_args, tokens
 
     print()
     for raw in ["", "草莓", "草莓 单价 2", "倍率2 等级70 售价"]:
         print(f"解析 {raw!r} ->", parse_entries_args(tokens(raw)))
+    for raw in ["", "牧场", "牧场 48", "菜地 12"]:
+        args = parse_market_args(split_args(raw))
+        print(f"行情解析 {raw!r} -> source={args.source} hours={args.hours}")
 
 
 if __name__ == "__main__":

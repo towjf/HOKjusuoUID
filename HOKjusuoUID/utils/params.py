@@ -18,7 +18,14 @@ COMMAND_WORDS = (
     "居所帮助",
     "居所测试",
 )
-"""命令首词，用于把 "/菜地 草莓 单价" 与 "菜地 草莓 单价" 都还原成参数列表。"""
+"""命令首词，用于把整条原文（"/菜地 草莓 单价" 或 "菜地 草莓 单价"）还原成参数列表。
+
+注意：gscore 的 `ev.text` 已经去掉了命令词，解析 `ev.text` 时请用 `split_args()`，
+否则像 `行情 牧场` 里的「牧场」会被当成命令词吃掉。
+"""
+
+MARKET_CROP = {"菜地", "作物", "crop"}
+MARKET_RANCH = {"牧场", "产物", "ranch"}
 
 SORT_UNIT = {"单价", "单件", "单价优先", "unit"}
 SORT_SALE = {"售价", "总价", "售价优先", "sale"}
@@ -43,6 +50,16 @@ class EntriesArgs(NamedTuple):
     """最低等级，None 表示不过滤。"""
 
 
+class MarketArgs(NamedTuple):
+    """`行情` 的解析结果。"""
+
+    source: str
+    """`crop` 菜地 / `ranch` 牧场。"""
+
+    hours: int
+    """统计窗口小时数。"""
+
+
 def has_slash(raw_text: str | None) -> bool:
     """判断用户原始消息是否以斜杠开头（拿不到原文时不拦截）。"""
     if raw_text is None:
@@ -53,13 +70,51 @@ def has_slash(raw_text: str | None) -> bool:
     return text.startswith(SLASHES)
 
 
+def split_args(message_str: str | None) -> list[str]:
+    """把「命令之后的文本」切成参数列表。
+
+    不做命令词剥离：gscore 传进来的 `ev.text` 本来就不含命令词，
+    这样 `行情 牧场` 的「牧场」才不会被误删。
+    """
+    text = str(message_str or "").replace("　", " ").strip()
+    text = text.lstrip("".join(SLASHES)).strip()
+    return [part for part in text.split() if part]
+
+
 def tokens(message_str: str | None) -> list[str]:
-    """取出命令之后的参数列表。"""
-    text = str(message_str or "").strip().lstrip("".join(SLASHES)).strip()
-    parts = text.split()
+    """从**整条原文**里取出参数（会剥掉首词命令）。
+
+    只在拿得到 `raw_text` 的场景使用；解析 `ev.text` 请用 `split_args()`。
+    """
+    parts = split_args(message_str)
     if parts and parts[0] in COMMAND_WORDS:
         parts = parts[1:]
     return parts
+
+
+def parse_market_args(argv: list[str], *, default_hours: int = 24) -> MarketArgs:
+    """解析 `行情` 的参数。
+
+    支持的写法：
+        行情                 → 菜地，默认小时数
+        行情 牧场            → 牧场产物
+        行情 菜地 48         → 菜地，近 48 小时
+        行情 牧场 6          → 牧场，近 6 小时（小时数限定 6~168）
+    """
+    source = "crop"
+    hours = default_hours
+    for raw in argv:
+        token = str(raw).strip()
+        if not token:
+            continue
+        low = token.lower()
+        if low in MARKET_RANCH:
+            source = "ranch"
+        elif low in MARKET_CROP:
+            source = "crop"
+        elif token.isdigit():
+            hours = max(6, min(int(token), 168))
+    return MarketArgs(source, hours)
 
 
 def parse_entries_args(argv: list[str]) -> EntriesArgs:

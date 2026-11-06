@@ -6,13 +6,13 @@ from gsuid_core.models import Event
 
 from ..jusuo_config import api_kwargs, conf
 from .api import JusuoAPI
-from .params import parse_entries_args, tokens
+from .params import parse_entries_args, split_args
 from .view import entry_card
 
 
 async def build_entries_card(ev: Event, source: str) -> dict:
     """source: residence（菜地） / ranch（牧场）。"""
-    args = parse_entries_args(tokens(getattr(ev, "text", "") or ""))
+    args = parse_entries_args(split_args(getattr(ev, "text", "") or ""))
     sort_mode = args.sort_mode or ("unit" if conf("default_sort") == "单价" else "sale")
     api = JusuoAPI(**api_kwargs())
 
