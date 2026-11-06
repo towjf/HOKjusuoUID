@@ -18,9 +18,9 @@ if "HOKjusuoUID" not in sys.modules:
     _pkg.__path__ = [str(ROOT / "HOKjusuoUID")]  # type: ignore[attr-defined]
     sys.modules["HOKjusuoUID"] = _pkg
 
-from HOKjusuoUID.jusuo_api import JusuoAPI  # noqa: E402
-from HOKjusuoUID.jusuo_image import save_image  # noqa: E402
-from HOKjusuoUID.jusuo_view import entry_card, market_card  # noqa: E402
+from HOKjusuoUID.utils.api import JusuoAPI  # noqa: E402
+from HOKjusuoUID.utils.image import save_image  # noqa: E402
+from HOKjusuoUID.utils.view import entry_card, market_card  # noqa: E402
 
 OUT = ROOT / "docs" / "images"
 

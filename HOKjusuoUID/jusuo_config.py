@@ -1,8 +1,6 @@
-"""插件配置（持久化到 gsuid_core/data/gs_jusuo/config.json，可在网页控制台修改）。"""
+"""插件配置（持久化到 gsuid_core/data/HOKjusuoUID/config.json，可在网页控制台修改）。"""
 
 from __future__ import annotations
-
-from typing import Dict
 
 from gsuid_core.data_store import get_res_path
 from gsuid_core.utils.plugins_config.gs_config import StringConfig
@@ -14,11 +12,11 @@ from gsuid_core.utils.plugins_config.models import (
     GsStrConfig,
 )
 
-from .jusuo_api import DEFAULT_ANON_KEY, DEFAULT_BASE_URL
+from .utils.api import DEFAULT_ANON_KEY, DEFAULT_BASE_URL
 
 CONFIG_PATH = get_res_path("HOKjusuoUID") / "config.json"
 
-JUSUO_CONFIG_DEFAULT: Dict[str, GSC] = {
+JUSUO_CONFIG_DEFAULT: dict[str, GSC] = {
     "接口": GsDivider(title="接口", desc="", data=None),
     "supabase_url": GsStrConfig(
         "数据接口地址", "站点使用的 Supabase 地址，一般不用改", DEFAULT_BASE_URL

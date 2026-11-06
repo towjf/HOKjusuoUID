@@ -6,17 +6,32 @@ gscore 认插件的唯一依据是**目录名**：`gsuid_core/plugins/HOKjusuoUI
 ## 正确形态（对照检查）
 
 ```
-gsuid_core/plugins/
-└── HOKjusuoUID/
-    ├── __init__.py          ← 必须在这一层，跟 jusuo_*.py 同级
-    ├── jusuo_api.py
-    ├── jusuo_config.py
-    ├── jusuo_format.py
-    ├── jusuo_image.py
-    ├── jusuo_params.py
-    ├── jusuo_text.py
-    └── jusuo_view.py
-```
+gsuid_core/plugins/HOKjusuoUID/
+├── __init__.py          ← 必须在这一层（只做 Plugins 注册 + 导入子包）
+├── version.py
+├── jusuo_config.py
+├── jusuo_residence/     # 菜地
+│   └── __init__.py
+├── jusuo_ranch/         # 牧场
+│   └── __init__.py
+├── jusuo_items/         # 物品列表
+│   └── __init__.py
+├── jusuo_market/        # 行情
+│   └── __init__.py
+├── jusuo_help/          # 帮助
+│   └── __init__.py
+├── jusuo_status/        # 状态（仅超管）
+│   └── __init__.py
+└── utils/
+    ├── __init__.py
+    ├── api.py           # Supabase REST 客户端
+    ├── entries.py       # 菜地/牧场共用取数
+    ├── format.py        # 金额、时间、估价公式
+    ├── image.py         # Pillow 绘制
+    ├── params.py        # 参数解析
+    ├── sender.py        # 出图并发送
+    ├── text.py          # 纯文本兜底
+    └── view.py          # 卡片视图模型
 
 ## 三个包怎么用
 

@@ -1,5 +1,30 @@
 # 更新日志
 
+## 1.3.0
+
+### 重构
+
+按 EndUID 的分包约定把目录做了分类，扁平一堆 `jusuo_*.py` 改成「一个功能一个子包 + utils」：
+
+```
+HOKjusuoUID/
+├── __init__.py          # 只做 Plugins 注册与子包导入
+├── version.py           # 版本号唯一来源
+├── jusuo_config.py      # 控制台配置
+├── jusuo_residence/     # 菜地
+├── jusuo_ranch/         # 牧场
+├── jusuo_items/         # 物品列表
+├── jusuo_market/        # 行情
+├── jusuo_help/          # 帮助
+├── jusuo_status/        # 状态（pm=1）
+└── utils/               # api / entries / format / image / params / sender / text / view
+```
+
+- 各命令的 `SV` 与 handler 就近放在自己子包里，`utils/` 只放无状态逻辑；
+- 出图发送抽到 `utils/sender.py`，菜地/牧场共用逻辑抽到 `utils/entries.py`；
+- `utils/__init__.py` 保持空导入，避免 `jusuo_config ↔ utils` 循环引用；
+- 发布包改为递归收集子目录（`rglob`），subpackage 会一起打进 zip。
+
 ## 1.2.0
 
 ### 变更

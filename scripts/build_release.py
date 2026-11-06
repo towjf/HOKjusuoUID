@@ -17,13 +17,22 @@ DIST = ROOT / "dist"
 EXTRA_FILES = ("README.md", "INSTALL.md", "LICENSE", "requirements.txt")
 
 
+def iter_package_files():
+    for path in sorted(PKG.rglob("*")):
+        if not path.is_file():
+            continue
+        if "__pycache__" in path.parts or path.suffix == ".pyc":
+            continue
+        yield path
+
+
 def build(zip_path: Path, wrapper: bool) -> int:
     zip_path.unlink(missing_ok=True)
     count = 0
     with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as archive:
-        for path in sorted(PKG.glob("*.py")):
-            arcname = f"{PKG.name}/{path.name}" if wrapper else path.name
-            archive.write(path, arcname)
+        for path in iter_package_files():
+            rel = path.relative_to(PKG).as_posix()
+            archive.write(path, f"{PKG.name}/{rel}" if wrapper else rel)
             count += 1
         for name in EXTRA_FILES:
             path = ROOT / name

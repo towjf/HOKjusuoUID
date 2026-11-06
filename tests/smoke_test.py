@@ -83,7 +83,7 @@ async def main() -> None:
     for line in str(bot.sends[0]).splitlines()[:2]:
         print("   ", line)
 
-    from HOKjusuoUID.jusuo_params import parse_entries_args, tokens
+    from HOKjusuoUID.utils.params import parse_entries_args, tokens
 
     print()
     for raw in ["", "草莓", "草莓 单价 2", "倍率2 等级70 售价"]:

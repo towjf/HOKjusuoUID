@@ -21,16 +21,16 @@ if "HOKjusuoUID" not in sys.modules:
     _pkg.__path__ = [str(PLUGIN_DIR)]  # type: ignore[attr-defined]
     sys.modules["HOKjusuoUID"] = _pkg
 
-from HOKjusuoUID.jusuo_format import (  # noqa: E402
+from HOKjusuoUID.utils.format import (  # noqa: E402
     estimate_price,
     fmt_money,
     fmt_remaining,
     multiplier_tone,
 )
-from HOKjusuoUID.jusuo_image import render_card  # noqa: E402
-from HOKjusuoUID.jusuo_params import parse_entries_args, tokens  # noqa: E402
-from HOKjusuoUID.jusuo_text import card_to_text  # noqa: E402
-from HOKjusuoUID.jusuo_view import entry_card  # noqa: E402
+from HOKjusuoUID.utils.image import render_card  # noqa: E402
+from HOKjusuoUID.utils.params import parse_entries_args, tokens  # noqa: E402
+from HOKjusuoUID.utils.text import card_to_text  # noqa: E402
+from HOKjusuoUID.utils.view import entry_card  # noqa: E402
 
 PRICES = {"crop": {"荆棘草莓": 460.0}, "ranch": {"浅滩羊驼毛": 800.0}}
 FAR_FUTURE = (datetime.now(UTC) + timedelta(days=3)).isoformat()

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 
-from .jusuo_format import (
+from .format import (
     estimate_price,
     fmt_count,
     fmt_money,
