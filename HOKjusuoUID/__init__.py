@@ -1,4 +1,4 @@
-"""居所助手 · gscore（早柚核心）插件。
+"""HOKjusuoUID · 居所助手 · gscore（早柚核心）插件。
 
 数据来自玩家自发分享的 jusuo.playmmo.cn，直连其公开只读 Supabase 接口。
 命令：菜地 / 牧场 / 物品列表 / 行情 / 居所帮助 / 居所状态
@@ -21,21 +21,21 @@ from .jusuo_params import parse_entries_args, tokens
 from .jusuo_text import card_to_text
 from .jusuo_view import entry_card, help_rows_card, market_card
 
-__version__ = "1.0.1"
+__version__ = "1.1.0"
 
 # 插件级配置：只允许空前缀（直接发「菜地」）。
 # 这里【不要】写 force_prefix：gscore 会把每个命令按前缀展开成多份触发器，
 # 填了「居所」之后控制台里每条命令都会出现「菜地」和「居所菜地」两条。
 # 需要前缀时由部署者在插件配置里自行添加即可。
-Plugins(name="gs_jusuo", allow_empty_prefix=True)
+Plugins(name="HOKjusuoUID", allow_empty_prefix=True)
 
 # 一个命令一个 SV：控制台里可以单独开关、单独调权限与优先级
-sv_residence = SV("居所助手-菜地", pm=6, priority=5)
-sv_ranch = SV("居所助手-牧场", pm=6, priority=5)
-sv_items = SV("居所助手-物品列表", pm=6, priority=5)
-sv_market = SV("居所助手-行情", pm=6, priority=5)
-sv_help = SV("居所助手-命令帮助", pm=6, priority=5)
-sv_status = SV("居所助手-自检", pm=1, priority=5)  # pm=1 → 仅超级管理员
+sv_residence = SV("HOKjusuoUID-菜地", pm=6, priority=5)
+sv_ranch = SV("HOKjusuoUID-牧场", pm=6, priority=5)
+sv_items = SV("HOKjusuoUID-物品列表", pm=6, priority=5)
+sv_market = SV("HOKjusuoUID-行情", pm=6, priority=5)
+sv_help = SV("HOKjusuoUID-命令帮助", pm=6, priority=5)
+sv_status = SV("HOKjusuoUID-自检", pm=1, priority=5)  # pm=1 → 仅超级管理员
 
 HELP_ITEMS = [
     {

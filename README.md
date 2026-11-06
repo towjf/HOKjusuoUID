@@ -1,4 +1,4 @@
-# 居所助手 · gs_jusuo
+# 居所助手 · HOKjusuoUID
 
 > 早柚核心（gscore / gsuid_core）插件：王者荣耀世界「居所助手」数据查询 —— 菜地/牧场高倍收购、物品清单、行情走势，本地出图。
 
@@ -26,24 +26,45 @@
 
 ## 安装
 
+插件目录名、`Plugins(name=...)` 都必须叫 **HOKjusuoUID**，三者（仓库名 / 目录名 / 注册名）保持一致，gscore 才能正确加载。
+
 **方式一：网页控制台（推荐）**
 
-打开 gscore 控制台 → 插件管理 → 安装插件，填入仓库地址 `https://github.com/towjf/gs_jusuo`，等待安装完成后在插件配置页确认启用。
+打开 gscore 控制台 → 插件管理 → 安装插件 → 填仓库地址 `https://github.com/towjf/HOKjusuoUID`，安装完成后启用。
 
-**方式二：手动**
+**方式二：git clone**
 
 ```bash
 cd gsuid_core/plugins
-git clone https://github.com/towjf/gs_jusuo.git
+git clone https://github.com/towjf/HOKjusuoUID.git
 ```
-
-重启 gscore，日志出现 `插件gs_jusuo导入成功!` 即可。
 
 **方式三：上传 zip**
 
-把仓库里的 `gs_jusuo` 文件夹（内含 `__init__.py`）整体放进 `gsuid_core/plugins/` 下，目录名保持 `gs_jusuo`。
+仓库的 `dist/` 里有两个包，按安装器行为二选一：
 
-依赖只有 `httpx` 与 `Pillow`，两者 gscore 本身已自带，通常无需额外安装。
+| 包 | 结构 | 用在哪 |
+| --- | --- | --- |
+| `HOKjusuoUID-flat.zip` | 根层直接是 `__init__.py`、`jusuo_*.py` | 控制台「上传 zip 安装」时用；安装器会自己建 `plugins/HOKjusuoUID/` |
+| `HOKjusuoUID.zip` | 根层是 `HOKjusuoUID/` 文件夹 | 手动解压到 `gsuid_core/plugins/` 后直接用 |
+
+手动解压时最终目录必须是：
+
+```
+gsuid_core/plugins/HOKjusuoUID/
+├── __init__.py
+├── jusuo_api.py
+├── jusuo_config.py
+├── jusuo_format.py
+├── jusuo_image.py
+├── jusuo_params.py
+├── jusuo_text.py
+└── jusuo_view.py
+```
+
+**别套两层**（`plugins/HOKjusuoUID/HOKjusuoUID/__init__.py` 这种会加载失败，表现就是日志里看不到 `插件HOKjusuoUID导入成功!`）。
+
+重启 gscore，日志出现 `插件HOKjusuoUID导入成功!` 即成功。依赖只有 `httpx` 与 `Pillow`，gscore 自带。
 
 ## 命令
 
@@ -88,7 +109,7 @@ git clone https://github.com/towjf/gs_jusuo.git
 
 ## 配置
 
-配置会写入 `gsuid_core/data/gs_jusuo/config.json`，也可在网页控制台修改。
+配置会写入 `gsuid_core/data/HOKjusuoUID/config.json`，也可在网页控制台修改。
 
 | 键 | 说明 | 默认 |
 | --- | --- | --- |
@@ -115,7 +136,7 @@ git clone https://github.com/towjf/gs_jusuo.git
 ## 开发
 
 ```
-gs_jusuo/
+HOKjusuoUID/
 ├── __init__.py          # Plugins + SV + 命令注册
 ├── jusuo_config.py      # 网页控制台配置项
 ├── jusuo_api.py         # Supabase REST 客户端（httpx，带缓存与重试）

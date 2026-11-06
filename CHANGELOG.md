@@ -1,5 +1,12 @@
 # 更新日志
 
+## 1.1.0
+
+### 变更
+
+- 插件改名 `HOKjusuoUID`（仓库名、目录名、`Plugins(name=...)`、SV 名、配置目录同步），符合 `GenshinUID` / `StarRailUID` 这类「游戏缩写 + UID」的命名惯例；
+- 发布包改为双形态：`HOKjusuoUID-flat.zip`（根层直接放 `__init__.py`，供控制台上传安装）与 `HOKjusuoUID.zip`（根层是 `HOKjusuoUID/` 文件夹，供手动解压）；
+
 ## 1.0.1
 
 ### 变更
@@ -25,7 +32,7 @@
 ### 适配
 
 - 使用 httpx 打 Supabase REST 接口，代理环境异常（如 `NO_PROXY` 含 `[::1]`）时自动退回不读环境变量；
-- 配置项接入网页控制台，写入 `gsuid_core/data/gs_jusuo/config.json`；
+- 配置项接入网页控制台，写入 `gsuid_core/data/HOKjusuoUID/config.json`；
 - 插件级前缀：默认允许无前缀，同时注册 `居所` 前缀。
 
 ### 测试

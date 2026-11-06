@@ -13,24 +13,24 @@ from pathlib import Path
 
 from PIL import Image
 
-PLUGIN_DIR = Path(__file__).resolve().parents[1] / "gs_jusuo"
+PLUGIN_DIR = Path(__file__).resolve().parents[1] / "HOKjusuoUID"
 sys.path.insert(0, str(PLUGIN_DIR.parent))
 
-if "gs_jusuo" not in sys.modules:
-    _pkg = types.ModuleType("gs_jusuo")
+if "HOKjusuoUID" not in sys.modules:
+    _pkg = types.ModuleType("HOKjusuoUID")
     _pkg.__path__ = [str(PLUGIN_DIR)]  # type: ignore[attr-defined]
-    sys.modules["gs_jusuo"] = _pkg
+    sys.modules["HOKjusuoUID"] = _pkg
 
-from gs_jusuo.jusuo_format import (  # noqa: E402
+from HOKjusuoUID.jusuo_format import (  # noqa: E402
     estimate_price,
     fmt_money,
     fmt_remaining,
     multiplier_tone,
 )
-from gs_jusuo.jusuo_image import render_card  # noqa: E402
-from gs_jusuo.jusuo_params import parse_entries_args, tokens  # noqa: E402
-from gs_jusuo.jusuo_text import card_to_text  # noqa: E402
-from gs_jusuo.jusuo_view import entry_card  # noqa: E402
+from HOKjusuoUID.jusuo_image import render_card  # noqa: E402
+from HOKjusuoUID.jusuo_params import parse_entries_args, tokens  # noqa: E402
+from HOKjusuoUID.jusuo_text import card_to_text  # noqa: E402
+from HOKjusuoUID.jusuo_view import entry_card  # noqa: E402
 
 PRICES = {"crop": {"荆棘草莓": 460.0}, "ranch": {"浅滩羊驼毛": 800.0}}
 FAR_FUTURE = (datetime.now(UTC) + timedelta(days=3)).isoformat()

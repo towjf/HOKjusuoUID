@@ -16,7 +16,7 @@ from gsuid_core.utils.plugins_config.models import (
 
 from .jusuo_api import DEFAULT_ANON_KEY, DEFAULT_BASE_URL
 
-CONFIG_PATH = get_res_path("gs_jusuo") / "config.json"
+CONFIG_PATH = get_res_path("HOKjusuoUID") / "config.json"
 
 JUSUO_CONFIG_DEFAULT: Dict[str, GSC] = {
     "接口": GsDivider(title="接口", desc="", data=None),
@@ -47,7 +47,7 @@ JUSUO_CONFIG_DEFAULT: Dict[str, GSC] = {
     "market_hours": GsIntConfig("行情默认小时数", "行情命令不带小时参数时的默认值", 24, max_value=168),
 }
 
-jusuo_config = StringConfig("gs_jusuo", CONFIG_PATH, JUSUO_CONFIG_DEFAULT)
+jusuo_config = StringConfig("HOKjusuoUID", CONFIG_PATH, JUSUO_CONFIG_DEFAULT)
 
 
 def conf(key: str):

@@ -12,13 +12,13 @@ ROOT = Path(__file__).resolve().parents[1]
 STUB = Path(__file__).resolve().parent / "stub"
 
 sys.path.insert(0, str(STUB))  # 提供 gsuid_core 桩
-sys.path.insert(0, str(ROOT))  # 提供 gs_jusuo 包
+sys.path.insert(0, str(ROOT))  # 提供 HOKjusuoUID 包
 
-import gs_jusuo  # noqa: E402
+import HOKjusuoUID  # noqa: E402
 from gsuid_core.models import Event  # noqa: E402
 from gsuid_core.sv import HANDLERS, PLUGIN_KWARGS, SV_LIST  # noqa: E402
 
-from gs_jusuo.jusuo_config import jusuo_config  # noqa: E402
+from HOKjusuoUID.jusuo_config import jusuo_config  # noqa: E402
 
 
 class FakeBot:
@@ -43,8 +43,8 @@ CASES = [
 
 
 async def main() -> None:
-    print(f"插件：{gs_jusuo.__name__} v{gs_jusuo.__version__}")
-    print("Plugins 参数：", PLUGIN_KWARGS.get("gs_jusuo"))
+    print(f"插件：{HOKjusuoUID.__name__} v{HOKjusuoUID.__version__}")
+    print("Plugins 参数：", PLUGIN_KWARGS.get("HOKjusuoUID"))
     print()
     print("SV 列表（每个命令一个，可单独开关/设权限）：")
     for name, sv in SV_LIST.items():
@@ -80,7 +80,7 @@ async def main() -> None:
     for line in str(bot.sends[0]).splitlines()[:2]:
         print("   ", line)
 
-    from gs_jusuo.jusuo_params import parse_entries_args, tokens
+    from HOKjusuoUID.jusuo_params import parse_entries_args, tokens
 
     print()
     for raw in ["", "草莓", "草莓 单价 2", "倍率2 等级70 售价"]:

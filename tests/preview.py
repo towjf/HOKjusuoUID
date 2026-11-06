@@ -13,14 +13,14 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 # 只借用插件里的纯逻辑模块，绕开需要 gsuid_core 的 __init__.py
-if "gs_jusuo" not in sys.modules:
-    _pkg = types.ModuleType("gs_jusuo")
-    _pkg.__path__ = [str(ROOT / "gs_jusuo")]  # type: ignore[attr-defined]
-    sys.modules["gs_jusuo"] = _pkg
+if "HOKjusuoUID" not in sys.modules:
+    _pkg = types.ModuleType("HOKjusuoUID")
+    _pkg.__path__ = [str(ROOT / "HOKjusuoUID")]  # type: ignore[attr-defined]
+    sys.modules["HOKjusuoUID"] = _pkg
 
-from gs_jusuo.jusuo_api import JusuoAPI  # noqa: E402
-from gs_jusuo.jusuo_image import save_image  # noqa: E402
-from gs_jusuo.jusuo_view import entry_card, market_card  # noqa: E402
+from HOKjusuoUID.jusuo_api import JusuoAPI  # noqa: E402
+from HOKjusuoUID.jusuo_image import save_image  # noqa: E402
+from HOKjusuoUID.jusuo_view import entry_card, market_card  # noqa: E402
 
 OUT = ROOT / "docs" / "images"
 
