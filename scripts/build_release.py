@@ -14,7 +14,7 @@ ROOT = Path(__file__).resolve().parents[1]
 PKG = ROOT / "HOKjusuoUID"
 DIST = ROOT / "dist"
 
-EXTRA_FILES = ("README.md", "LICENSE", "requirements.txt")
+EXTRA_FILES = ("README.md", "INSTALL.md", "LICENSE", "requirements.txt")
 
 
 def build(zip_path: Path, wrapper: bool) -> int:
