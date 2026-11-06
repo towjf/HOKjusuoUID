@@ -1,0 +1,20 @@
+[project]
+name = "gs_jusuo"
+version = "1.0.0"
+description = "居所助手 · 王者荣耀世界菜地/牧场高倍收购查询（gscore 插件）"
+authors = [{ name = "towjf", email = "towjf@users.noreply.github.com" }]
+license = { text = "MIT" }
+requires-python = ">=3.10"
+dependencies = [
+    "httpx>=0.24",
+    "pillow>=9.0",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+exclude = [".venv", "__pycache__", "tests/stub_gsuid_core"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "C4", "SIM"]
+ignore = ["E501", "RUF001", "RUF002", "RUF003"]

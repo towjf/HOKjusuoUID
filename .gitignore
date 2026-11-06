@@ -1,0 +1,28 @@
+# Python 缓存
+__pycache__/
+*.py[cod]
+*$py.class
+
+# 虚拟环境
+.venv/
+venv/
+
+# 本地产物
+preview/
+*.png
+!logo.png
+!docs/images/*.png
+!docs/images/*.webp
+
+# 打包
+dist/
+build/
+*.egg-info/
+*.zip
+
+# 编辑器 / 系统
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.log
