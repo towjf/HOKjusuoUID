@@ -33,12 +33,12 @@ class FakeBot:
 
 
 CASES = [
-    ("菜地", " 草莓 单价 2"),
-    ("牧场", " 羊毛"),
-    ("物品列表", ""),
-    ("行情", " 牧场 48"),
-    ("居所帮助", ""),
-    ("居所状态", ""),
+    ("js菜地", " 草莓 单价 2"),
+    ("居所牧场", " 羊毛"),
+    ("js物品列表", ""),
+    ("居所行情", " 牧场 48"),
+    ("js帮助", ""),
+    ("js状态", ""),
 ]
 
 
@@ -56,6 +56,9 @@ async def main() -> None:
     }
     extra = [k for k, c in duplicates.items() if c > 1]
     print("重复注册的命令：", extra or "无")
+    bare = [k for k in HANDLERS if not (k.startswith("js") or k.startswith("居所"))]
+    print("裸命令（应为空）：", bare or "无")
+    assert not bare, "存在未带前缀的裸命令"
     print("全部触发词：", sorted(HANDLERS))
     print("配置项：", list(jusuo_config.config.keys()))
     print()
@@ -75,7 +78,7 @@ async def main() -> None:
 
     jusuo_config.get_config("use_image").data = False
     bot = FakeBot()
-    await HANDLERS["菜地"]["func"](bot, Event(text="", command="菜地"))
+    await HANDLERS["js菜地"]["func"](bot, Event(text="", command="js菜地"))
     print("\n关闭出图后的纯文本输出（前两行）：")
     for line in str(bot.sends[0]).splitlines()[:2]:
         print("   ", line)

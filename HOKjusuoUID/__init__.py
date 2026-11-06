@@ -21,45 +21,48 @@ from .jusuo_params import parse_entries_args, tokens
 from .jusuo_text import card_to_text
 from .jusuo_view import entry_card, help_rows_card, market_card
 
-__version__ = "1.1.0"
+__version__ = "1.2.0"
 
-# 插件级配置：只允许空前缀（直接发「菜地」）。
-# 这里【不要】写 force_prefix：gscore 会把每个命令按前缀展开成多份触发器，
-# 填了「居所」之后控制台里每条命令都会出现「菜地」和「居所菜地」两条。
-# 需要前缀时由部署者在插件配置里自行添加即可。
-Plugins(name="HOKjusuoUID", allow_empty_prefix=True)
+# 默认前缀 js / 居所：所有命令都必须带前缀触发（js菜地、居所菜地）。
+# allow_empty_prefix=False 表示不注册裸命令，避免和别的插件命令撞名。
+# 这两个前缀会写进 data/plugins_config/HOKjusuoUID.json，部署者可按需增删。
+Plugins(
+    name="HOKjusuoUID",
+    prefix=["js", "居所"],
+    allow_empty_prefix=False,
+)
 
 # 一个命令一个 SV：控制台里可以单独开关、单独调权限与优先级
 sv_residence = SV("HOKjusuoUID-菜地", pm=6, priority=5)
 sv_ranch = SV("HOKjusuoUID-牧场", pm=6, priority=5)
 sv_items = SV("HOKjusuoUID-物品列表", pm=6, priority=5)
 sv_market = SV("HOKjusuoUID-行情", pm=6, priority=5)
-sv_help = SV("HOKjusuoUID-命令帮助", pm=6, priority=5)
+sv_help = SV("HOKjusuoUID-帮助", pm=6, priority=5)
 sv_status = SV("HOKjusuoUID-自检", pm=1, priority=5)  # pm=1 → 仅超级管理员
 
 HELP_ITEMS = [
     {
-        "cmd": "菜地 [物品] [单价|售价] [页数]",
+        "cmd": "js菜地 [物品] [单价|售价] [页数]",
         "what": "菜地作物高倍收购",
-        "how": "默认售价优先、第 1 页。例：菜地 草莓 / 菜地 草莓 单价 2",
+        "how": "默认售价优先、第 1 页。例：js菜地 草莓 / js菜地 草莓 单价 2",
     },
     {
-        "cmd": "牧场 [物品] [单价|售价] [页数]",
+        "cmd": "js牧场 [物品] [单价|售价] [页数]",
         "what": "牧场动物产物收购",
-        "how": "规则同菜地。例：牧场 羊毛 单价",
+        "how": "规则同菜地。例：js牧场 羊毛 单价",
     },
     {
-        "cmd": "物品列表",
+        "cmd": "js物品列表",
         "what": "菜地 + 牧场的物品清单",
         "how": "把当前在售的作物与牧场产物名字全部列出来，只有名字",
     },
     {
-        "cmd": "行情 [菜地|牧场] [小时]",
+        "cmd": "js行情 [菜地|牧场] [小时]",
         "what": "近 N 小时行情峰值",
-        "how": "默认菜地、24 小时。例：行情 牧场 48",
+        "how": "默认菜地、24 小时。例：js行情 牧场 48",
     },
     {
-        "cmd": "居所状态",
+        "cmd": "js状态",
         "what": "自检（仅超级管理员）",
         "how": "返回接口连通性、出图方式与插件版本",
     },
@@ -231,19 +234,21 @@ async def cmd_market(bot: Bot, ev: Event) -> None:
 # ---------------------------------------------------------------- 帮助 / 自检
 
 
-@sv_help.on_command("居所帮助", block=True)
+@sv_help.on_command("帮助", block=True)
 async def cmd_help(bot: Bot, ev: Event) -> None:
     if not conf("use_image"):
-        lines = ["【居所助手 命令一览】"]
+        lines = ["【居所助手 命令一览】", "命令必须带前缀 js 或 居所"]
         for item in HELP_ITEMS:
             lines.append(f"{item['cmd']}\n  {item['what']} · {item['how']}")
         await bot.send("\n".join(lines))
         return
-    card = help_rows_card(HELP_ITEMS, "命令可用空格跟参数，例：菜地 草莓 单价 2")
+    card = help_rows_card(
+        HELP_ITEMS, "命令必须带前缀 js 或 居所，例：js菜地 草莓 单价 2"
+    )
     await _send_card(bot, card)
 
 
-@sv_status.on_command("居所状态", block=True)
+@sv_status.on_command("状态", block=True)
 async def cmd_status(bot: Bot, ev: Event) -> None:
     lines = ["【居所助手自检】"]
     started = time.perf_counter()
